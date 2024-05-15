@@ -62,65 +62,30 @@ it('Add another note', async () => {
   expect(notesNum).toBe(2);
 });
 
+it('Testing delete feature by double clicking', async () => {
+  const note = await page.$('.note');
 
-// it('should edit a new note', () => {
-//     // Add a new note
-//     addNote();
+  await note.click({ clickCount: 2 });
 
-//     // Edit the note
-//     const noteElement = notesContainer.querySelector('.note');
-//     noteElement.value = 'Edited Note';
-//     noteElement.dispatchEvent(new Event('change'));
+  const notesNum = await page.$$eval('.note', elements => elements.length);
+  expect(notesNum).toBe(1);
+});
 
-//     // Check if the note is updated in localStorage
-//     const notes = getNotes();
-//     expect(notes[0].content).toBe('Edited Note');
-// }, 2500);
 
-// it('should edit an existing note', () => {
-//     // Add an existing note
-//     const existingNote = { id: 123, content: 'Existing Note' };
-//     saveNotes([existingNote]);
 
-//     // Edit the existing note
-//     const noteElement = createNoteElement(existingNote.id, existingNote.content);
-//     noteElement.value = 'Edited Existing Note';
-//     noteElement.dispatchEvent(new Event('change'));
+it('App should save notes locally even after reload', async () => {
+    // Add 2 more notes for total of 3 so far since we deleted the first one
+    const addNoteButton = await page.$('.add-note');
+    await addNoteButton.click();
+    await addNoteButton.click();
 
-//     // Check if the note is updated in localStorage
-//     const notes = getNotes();
-//     expect(notes[0].content).toBe('Edited Existing Note');
-// }, 2500);
+    // Reload the page
+    await page.reload();
 
-// it('should save notes locally', () => {
-//     // Add some notes
-//     addNote();
-//     addNote();
-//     addNote();
+    // Check if the 3 notes are still in localStorage
+    const notesNum = await page.$$eval('.note', notes => notes.length);
+    expect(notesNum).toBe(3);
+}, 2500);
 
-//     // Reload the page
-//     location.reload();
-
-//     // Check if the notes are still in localStorage
-//     const notes = getNotes();
-//     expect(notes.length).toBe(3);
-// }, 2500);
-
-// it('should delete a note by double clicking', () => {
-//     // Add a note
-//     addNote();
-
-//     // Double click on the note to delete
-//     const noteElement = notesContainer.querySelector('.note');
-//     noteElement.dispatchEvent(new Event('dblclick'));
-
-//     // Check if the note is deleted from localStorage
-//     const notes = getNotes();
-//     expect(notes.length).toBe(0);
-
-//     // Check if the note element is removed from the DOM
-//     expect(notesContainer.innerHTML).toBe('');
-// }, 2500);
-  
 });
 
