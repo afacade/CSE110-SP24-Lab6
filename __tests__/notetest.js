@@ -9,13 +9,59 @@ describe('http://127.0.0.1:5500/index.html', () => {
     // Click the add note button
     const addNoteButton = await page.$('.add-note');
     await addNoteButton.click();
-    const note = await page.$('.note');
-    note.content = 'hello';
+
+    await page.waitForSelector('.note');
+
     const localStorage = await page.evaluate(() =>  Object.assign({}, window.localStorage));
-    // const notesContainer = await page.$('.notes-app')
     console.log(localStorage);
     expect(localStorage['stickynotes-notes'].length).not.toBe(0);
 }, 2500);
+
+it('When new note, it should says new note as placeholder', async () => {
+  // check content that is located in placeholder
+  const noteContent = await page.$eval('.note', note => note.placeholder);
+  expect(noteContent).toBe('New Note');
+
+}, 2500);
+
+
+it('Type into empty note', async () => {
+  await page.click('.note');
+  await page.waitForSelector('.note');
+
+  await page.type('.note', 'test test 123');
+  const noteContent = await page.$eval('.note', note => note.value);
+
+  // note content should be no longer New Note but what we set it
+  expect(noteContent).toBe('test test 123');
+
+}, 2500);
+
+it('Edit existing note', async () => {
+  await page.click('.note');
+  await page.waitForSelector('.note');
+
+  const content = await page.$eval('.note', note => note.value);
+  // delete current content
+  for(let i = 0; i < content.length;  i++){
+    await page.keyboard.press('Backspace');
+  }
+  
+  await page.type('.note', 'note edited');
+  // it should become the new text
+  const newcontent = await page.$eval('.note', note => note.value);
+  expect(newcontent).toBe('note edited');
+});
+
+it('Add another note', async () => {
+  // Click and wait for note to appear
+  await page.click('.add-note');
+  await page.waitForSelector('.note');
+
+  const notesNum = await page.$$eval('.note', notes => notes.length);
+  expect(notesNum).toBe(2);
+});
+
 
 // it('should edit a new note', () => {
 //     // Add a new note
